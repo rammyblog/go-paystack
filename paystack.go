@@ -23,6 +23,15 @@ type APIResponse map[string]interface{}
 
 type Metadata map[string]interface{}
 
+// PaginationMeta is pagination metadata for paginated responses from the Paystack API
+type PaginationMeta struct {
+	Total     int `json:"total"`
+	Skipped   int `json:"skipped"`
+	PerPage   int `json:"perPage"`
+	Page      int `json:"page"`
+	PageCount int `json:"pageCount"`
+}
+
 // NewClient creates a new Paystack API client with the given API key.
 func NewClient(apiKey string) *Client {
 	httpClient := &http.Client{

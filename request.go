@@ -149,30 +149,19 @@ func parseAPIResponse(c *Client, resp *http.Response, resultPtr interface{}) err
 
 	c.log.Info("Paystack response: %v\n", resp)
 
+	// looking for a more betterway
 	if data, ok := response["data"]; ok {
 		switch t := response["data"].(type) {
+
 		case map[string]interface{}:
 			return mapstruct(data, resultPtr)
+			// i
 		default:
+			// if response is an array
 			_ = t
-			return mapstruct(resp, resultPtr)
+			return mapstruct(response, resultPtr)
 		}
 	}
 	// if response data does not contain data key, map entire response to v
-	return mapstruct(resp, resultPtr)
-}
-
-func invalidStatusCode(actual int) bool {
-	//Valid list of good HTTP response codes to expect from Convoy's API
-	expected := map[int]bool{
-		200: true,
-		202: true,
-		204: true,
-	}
-
-	if _, ok := expected[actual]; ok {
-		return false
-	}
-
-	return true
+	return mapstruct(response, resultPtr)
 }
