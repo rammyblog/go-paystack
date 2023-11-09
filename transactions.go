@@ -85,6 +85,7 @@ type TransactionRequest struct {
 	TransactionCharge int      `json:"transaction_charge,omitempty"`
 	AuthorizationCode string   `json:"authorization_code,omitempty"`
 	Bearer            string   `json:"bearer,omitempty"`
+	Queue             bool     `json:"queue,omitempty"`
 }
 
 type InitializeTransactionResponse struct {
@@ -129,48 +130,6 @@ func newTransaction(client *Client) *Transaction {
 	}
 }
 
-func buildQuery(key, value interface{}) string {
-	return fmt.Sprintf("%s=%v", key, value)
-}
-
-func buildTransactionListQuery(params ...TransactionListQuery) string {
-	query := "?"
-	for _, param := range params {
-		if param.PerPage > 0 {
-			query += buildQuery("perPage", param.PerPage)
-		}
-		if param.Page > 0 {
-			query += buildQuery("&page", param.Page)
-		}
-		if param.Amount > 0 {
-			query += buildQuery("&amount", param.Amount)
-
-		}
-		if param.From != "" {
-			query += buildQuery("&from", param.From)
-
-		}
-		if param.Status != "" {
-			query += buildQuery("&status", param.Status)
-
-		}
-		if param.TerminalId != "" {
-			query += buildQuery("&terminalid", param.TerminalId)
-
-		}
-		if param.To != "" {
-			query += buildQuery("&to", param.To)
-
-		}
-		if param.Customer > 0 {
-			query += buildQuery("&customer", param.Customer)
-		}
-
-	}
-
-	return query
-}
-
 // Initialize a transaction
 // For more details see https://paystack.com/docs/api/transaction/#initialize
 func (t *Transaction) Initialize(ctx context.Context, txn *TransactionRequest) (*InitializeTransactionResponse, error) {
@@ -193,10 +152,10 @@ func (t *Transaction) Verify(ctx context.Context, reference string) (*Transactio
 //	List of transactions
 //
 // For more details see https://paystack.com/docs/api/transaction/#list
-func (t *Transaction) List(ctx context.Context, params ...TransactionListQuery) (*TransactionList, error) {
+func (t *Transaction) List(ctx context.Context, params ...QueryType) (interface{}, error) {
 	var url string
 	if len(params) > 0 {
-		url = fmt.Sprintf("/transaction%s", buildTransactionListQuery(params...))
+		url = addQueryToUrl("transaction", params...)
 	} else {
 		url = "/transaction"
 	}
@@ -212,5 +171,14 @@ func (t *Transaction) FetchById(ctx context.Context, id int) (*TransactionRespon
 	url := fmt.Sprintf("/transaction/%v", id)
 	resp := &TransactionResponse{}
 	err := getResource(ctx, t.client, url, resp)
+	return resp, err
+}
+
+// Charge Authorization
+// For more details see https://paystack.com/docs/api/transaction/#charge-authorization
+func (t *Transaction) Charge(ctx context.Context, txn *TransactionRequest) (*TransactionResponse, error) {
+	url := "transaction/charge_authorization"
+	resp := &TransactionResponse{}
+	err := postResource(ctx, t.client, url, txn, resp)
 	return resp, err
 }

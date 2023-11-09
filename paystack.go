@@ -1,10 +1,12 @@
 package paystack
 
 import (
+	"fmt"
 	"log/slog"
 	"net/http"
 	"net/url"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -22,6 +24,11 @@ const BASE_URL = "https://api.paystack.co"
 type APIResponse map[string]interface{}
 
 type Metadata map[string]interface{}
+
+type QueryType struct {
+	Key   string
+	Value string
+}
 
 // PaginationMeta is pagination metadata for paginated responses from the Paystack API
 type PaginationMeta struct {
@@ -43,4 +50,22 @@ func NewClient(apiKey string) *Client {
 	c.Transaction = newTransaction(c)
 
 	return c
+}
+
+func Query(key, value string) QueryType {
+	return QueryType{
+		Key:   key,
+		Value: value,
+	}
+}
+
+func addQueryToUrl(url string, queries ...QueryType) string {
+	for _, query := range queries {
+		if strings.Contains(url, "?") {
+			url += fmt.Sprintf("&%s=%s", query.Key, query.Value)
+		} else {
+			url += fmt.Sprintf("?%s=%s", query.Key, query.Value)
+		}
+	}
+	return url
 }
