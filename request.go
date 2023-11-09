@@ -14,9 +14,7 @@ import (
 )
 
 const (
-
 	// User agent used when communicating with the Paystack API.
-	// userAgent = "paystack-go/" + version
 	userAgent = "Mozilla/5.0 (Unknown; Linux) AppleWebKit/538.1 (KHTML, like Gecko) Chrome/v1.0.0 Safari/538.1"
 )
 
@@ -121,6 +119,7 @@ func parseAPIResponse(c *Client, resp *http.Response, resultPtr interface{}) err
 	c.log.Debug("response: %q", dump)
 
 	b, err := io.ReadAll(resp.Body)
+
 	if err != nil {
 		return fmt.Errorf("error while reading the response bytes - %+v", err)
 	}
@@ -140,15 +139,11 @@ func parseAPIResponse(c *Client, resp *http.Response, resultPtr interface{}) err
 	}
 
 	if status, _ := response["status"].(bool); !status || resp.StatusCode >= 400 {
-
-		c.log.Debug("Paystack error: %+v", err)
-		c.log.Debug("HTTP Response: %+v", resp)
-
-		return newAPIError(resp)
+		c.log.Debug("HTTP Response:", resp)
+		return newAPIError(resp, response)
 	}
 
 	c.log.Info("Paystack response: %v\n", resp)
-
 	// looking for a more betterway
 	if data, ok := response["data"]; ok {
 		switch t := response["data"].(type) {

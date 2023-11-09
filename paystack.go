@@ -44,7 +44,7 @@ func NewClient(apiKey string) *Client {
 	httpClient := &http.Client{
 		Timeout: 5 * time.Second,
 	}
-	log := NewLogger(slog.New(slog.NewTextHandler(os.Stdout, nil)))
+	log := NewLogger(slog.New(slog.NewJSONHandler(os.Stdout, nil)))
 	parsedUrl, _ := url.Parse(BASE_URL)
 	c := &Client{APIKey: apiKey, HttpClient: httpClient, log: log, BaseUrl: parsedUrl}
 	c.Transaction = newTransaction(c)

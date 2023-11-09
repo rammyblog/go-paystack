@@ -4,7 +4,6 @@ package paystack
 
 import (
 	"encoding/json"
-	"io"
 	"net/http"
 	"net/url"
 )
@@ -26,20 +25,19 @@ func (e *APIError) Error() string {
 
 // ErrorResponse represents an error response from the Paystack API server
 type ErrorResponse struct {
-	Status  bool                   `json:"status,omitempty"`
-	Message string                 `json:"message,omitempty"`
-	Errors  map[string]interface{} `json:"errors,omitempty"`
+	Status  bool   `json:"status"`
+	Message string `json:"message,omitempty"`
 }
 
-func newAPIError(resp *http.Response) *APIError {
-	p, _ := io.ReadAll(resp.Body)
-
-	var paystackErrorResp ErrorResponse
-	_ = json.Unmarshal(p, &paystackErrorResp)
+func newAPIError(resp *http.Response, data map[string]interface{}) *APIError {
+	response := ErrorResponse{
+		Status:  data["status"].(bool),
+		Message: data["message"].(string),
+	}
 	return &APIError{
 		HTTPStatusCode: resp.StatusCode,
 		Header:         resp.Header,
-		Details:        paystackErrorResp,
+		Details:        response,
 		URL:            resp.Request.URL,
 	}
 }

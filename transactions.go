@@ -31,20 +31,20 @@ type Authorization struct {
 	AccountName       interface{} `json:"account_name"`
 }
 
-type Log struct {
-	StartTime int           `json:"start_time"`
-	TimeSpent int           `json:"time_spent"`
-	Attempts  int           `json:"attempts"`
-	Errors    int           `json:"errors"`
-	Success   bool          `json:"success"`
-	Mobile    bool          `json:"mobile"`
-	Input     []interface{} `json:"input"`
-	History   []struct {
-		Type    string `json:"type"`
-		Message string `json:"message"`
-		Time    int    `json:"time"`
-	} `json:"history"`
-}
+// type Log struct {
+// 	StartTime int           `json:"start_time"`
+// 	TimeSpent int           `json:"time_spent"`
+// 	Attempts  int           `json:"attempts"`
+// 	Errors    int           `json:"errors"`
+// 	Success   bool          `json:"success"`
+// 	Mobile    bool          `json:"mobile"`
+// 	Input     []interface{} `json:"input"`
+// 	History   []struct {
+// 		Type    string `json:"type"`
+// 		Message string `json:"message"`
+// 		Time    int    `json:"time"`
+// 	} `json:"history"`
+// }
 
 type Customer struct {
 	ID                       int         `json:"id"`
@@ -58,16 +58,24 @@ type Customer struct {
 	InternationalFormatPhone interface{} `json:"international_format_phone"`
 }
 
-type TransactionListQuery struct {
-	PerPage    int    `json:"perPage,omitempty"`
-	Page       int    `json:"page,omitempty"`
-	Customer   int    `json:"customer,omitempty"`
-	TerminalId string `json:"terminalid,omitempty"`
-	Status     string `json:"status,omitempty"`
-	From       string `json:"from,omitempty"`
-	To         string `json:"to,omitempty"`
-	Amount     int    `json:"amount,omitempty"`
+type TransactionTimeline struct {
+	StartTime      int           `json:"start_time"`
+	TimeSpent      int           `json:"time_spent,omitempty"`
+	Attempts       int           `json:"attempts,omitempty"`
+	Authentication interface{}   `json:"authentication,omitempty"`
+	Errors         int           `json:"errors,omitempty"`
+	Success        bool          `json:"success,omitempty"`
+	Mobile         bool          `json:"mobile,omitempty"`
+	Input          []interface{} `json:"input,omitempty"`
+	Channel        string        `json:"channel,omitempty"`
+	History        []struct {
+		Type    string `json:"type,omitempty"`
+		Message string `json:"message,omitempty"`
+		Time    int    `json:"time,omitempty"`
+	} `json:"history,omitempty"`
 }
+
+type GenericResponse map[string]interface{}
 
 // TransactionRequest represents a request to start a transaction.
 type TransactionRequest struct {
@@ -94,34 +102,38 @@ type InitializeTransactionResponse struct {
 	Reference        string `json:"reference,omitempty"`
 }
 type TransactionResponse struct {
-	ID                 int           `json:"id"`
-	Domain             string        `json:"domain"`
-	Status             string        `json:"status"`
-	Reference          string        `json:"reference"`
-	Amount             int           `json:"amount"`
-	Message            interface{}   `json:"message"`
-	GatewayResponse    string        `json:"gateway_response"`
-	Channel            string        `json:"channel"`
-	Currency           string        `json:"currency"`
-	IPAddress          string        `json:"ip_address"`
-	Metadata           interface{}   `json:"metadata"`
-	Log                Log           `json:"log"`
-	Fees               int           `json:"fees"`
-	FeesSplit          interface{}   `json:"fees_split"`
-	Authorization      Authorization `json:"authorization"`
-	Customer           Customer      `json:"customer"`
-	Plan               interface{}   `json:"plan"`
-	Split              interface{}   `json:"split"`
-	OrderID            interface{}   `json:"order_id"`
-	PaidAt             string        `json:"paidAt"`
-	CreatedAt          string        `json:"createdAt"`
-	RequestedAmount    int           `json:"requested_amount"`
-	PosTransactionData interface{}   `json:"pos_transaction_data"`
-	Source             interface{}   `json:"source"`
-	FeesBreakdown      interface{}   `json:"fees_breakdown"`
-	TransactionDate    string        `json:"transaction_date"`
-	PlanObject         interface{}   `json:"plan_object"`
-	Subaccount         interface{}   `json:"subaccount"`
+	ID                 int                 `json:"id"`
+	Domain             string              `json:"domain"`
+	Status             string              `json:"status"`
+	Reference          string              `json:"reference"`
+	Amount             int                 `json:"amount"`
+	Message            interface{}         `json:"message"`
+	GatewayResponse    string              `json:"gateway_response"`
+	Channel            string              `json:"channel"`
+	Currency           string              `json:"currency"`
+	IPAddress          string              `json:"ip_address"`
+	Metadata           interface{}         `json:"metadata"`
+	Log                TransactionTimeline `json:"log"`
+	Fees               int                 `json:"fees"`
+	FeesSplit          interface{}         `json:"fees_split"`
+	Authorization      Authorization       `json:"authorization"`
+	Customer           Customer            `json:"customer"`
+	Plan               interface{}         `json:"plan"`
+	Split              interface{}         `json:"split"`
+	OrderID            interface{}         `json:"order_id"`
+	PaidAt             string              `json:"paidAt"`
+	CreatedAt          string              `json:"createdAt"`
+	RequestedAmount    int                 `json:"requested_amount"`
+	PosTransactionData interface{}         `json:"pos_transaction_data"`
+	Source             interface{}         `json:"source"`
+	FeesBreakdown      interface{}         `json:"fees_breakdown"`
+	TransactionDate    string              `json:"transaction_date"`
+	PlanObject         interface{}         `json:"plan_object"`
+	Subaccount         interface{}         `json:"subaccount"`
+}
+
+type ExportTransaction struct {
+	Path string `json:"path,omitempty"`
 }
 
 func newTransaction(client *Client) *Transaction {
@@ -178,6 +190,52 @@ func (t *Transaction) FetchById(ctx context.Context, id int) (*TransactionRespon
 // For more details see https://paystack.com/docs/api/transaction/#charge-authorization
 func (t *Transaction) Charge(ctx context.Context, txn *TransactionRequest) (*TransactionResponse, error) {
 	url := "transaction/charge_authorization"
+	resp := &TransactionResponse{}
+	err := postResource(ctx, t.client, url, txn, resp)
+	return resp, err
+}
+
+// Total Transactions
+// For more details see https://paystack.com/docs/api/transaction/#totals
+func (t *Transaction) Total(ctx context.Context, params ...QueryType) (*GenericResponse, error) {
+	var url string
+	if len(params) > 0 {
+		url = addQueryToUrl("transaction/totals", params...)
+	} else {
+		url = "/transaction/totals"
+	}
+	resp := &GenericResponse{}
+	err := getResource(ctx, t.client, url, resp)
+	return resp, err
+}
+
+// View the timeline of a transaction
+// For more details see https://paystack.com/docs/api/transaction/#view-timeline
+func (t *Transaction) Timeline(ctx context.Context, id_or_ref string) (*TransactionResponse, error) {
+	url := fmt.Sprintf("/transaction/timeline/%v", id_or_ref)
+	resp := &TransactionResponse{}
+	err := getResource(ctx, t.client, url, resp)
+	return resp, err
+}
+
+// Export your transaction
+// For more details see https://paystack.com/docs/api/transaction/#export
+func (t *Transaction) Export(ctx context.Context, params ...QueryType) (*ExportTransaction, error) {
+	var url string
+	if len(params) > 0 {
+		url = addQueryToUrl("transaction/export", params...)
+	} else {
+		url = "/transaction/export"
+	}
+	resp := &ExportTransaction{}
+	err := getResource(ctx, t.client, url, resp)
+	return resp, err
+}
+
+// Partial debit
+// For more details see https://paystack.com/docs/api/transaction/#partial-debit
+func (t *Transaction) PartialDebit(ctx context.Context, txn *TransactionRequest) (*TransactionResponse, error) {
+	url := "transaction/partial_debit"
 	resp := &TransactionResponse{}
 	err := postResource(ctx, t.client, url, txn, resp)
 	return resp, err
