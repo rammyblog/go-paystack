@@ -8,7 +8,6 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"net/http/httputil"
 
 	"github.com/mitchellh/mapstructure"
 )
@@ -110,13 +109,6 @@ func doReq(c *Client, req *http.Request, res interface{}) error {
 }
 
 func parseAPIResponse(c *Client, resp *http.Response, resultPtr interface{}) error {
-	// Send debug logs.
-	dump, err := httputil.DumpResponse(resp, true)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	c.log.Debug("response: %q", dump)
 
 	b, err := io.ReadAll(resp.Body)
 
@@ -139,11 +131,11 @@ func parseAPIResponse(c *Client, resp *http.Response, resultPtr interface{}) err
 	}
 
 	if status, _ := response["status"].(bool); !status || resp.StatusCode >= 400 {
-		c.log.Debug("HTTP Response:", resp)
+		c.log.Error(fmt.Sprintln("Paystack response: %v\n", resp))
 		return newAPIError(resp, response)
 	}
 
-	c.log.Info("Paystack response: %v\n", resp)
+	c.log.Info(fmt.Sprintln("Paystack response: %v\n", resp))
 	// looking for a more betterway
 	if data, ok := response["data"]; ok {
 		switch t := response["data"].(type) {
