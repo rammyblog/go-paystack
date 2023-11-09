@@ -93,34 +93,34 @@ type InitializeTransactionResponse struct {
 	Reference        string `json:"reference,omitempty"`
 }
 type TransactionResponse struct {
-	ID                 int                    `json:"id"`
-	Domain             string                 `json:"domain"`
-	Status             string                 `json:"status"`
-	Reference          string                 `json:"reference"`
-	Amount             int                    `json:"amount"`
-	Message            interface{}            `json:"message"`
-	GatewayResponse    string                 `json:"gateway_response"`
-	Channel            string                 `json:"channel"`
-	Currency           string                 `json:"currency"`
-	IPAddress          string                 `json:"ip_address"`
-	Metadata           map[string]interface{} `json:"metadata"`
-	Log                Log                    `json:"log"`
-	Fees               int                    `json:"fees"`
-	FeesSplit          interface{}            `json:"fees_split"`
-	Authorization      Authorization          `json:"authorization"`
-	Customer           Customer               `json:"customer"`
-	Plan               interface{}            `json:"plan"`
-	Split              interface{}            `json:"split"`
-	OrderID            interface{}            `json:"order_id"`
-	PaidAt             string                 `json:"paidAt"`
-	CreatedAt          string                 `json:"createdAt"`
-	RequestedAmount    int                    `json:"requested_amount"`
-	PosTransactionData interface{}            `json:"pos_transaction_data"`
-	Source             interface{}            `json:"source"`
-	FeesBreakdown      interface{}            `json:"fees_breakdown"`
-	TransactionDate    string                 `json:"transaction_date"`
-	PlanObject         interface{}            `json:"plan_object"`
-	Subaccount         interface{}            `json:"subaccount"`
+	ID                 int           `json:"id"`
+	Domain             string        `json:"domain"`
+	Status             string        `json:"status"`
+	Reference          string        `json:"reference"`
+	Amount             int           `json:"amount"`
+	Message            interface{}   `json:"message"`
+	GatewayResponse    string        `json:"gateway_response"`
+	Channel            string        `json:"channel"`
+	Currency           string        `json:"currency"`
+	IPAddress          string        `json:"ip_address"`
+	Metadata           interface{}   `json:"metadata"`
+	Log                Log           `json:"log"`
+	Fees               int           `json:"fees"`
+	FeesSplit          interface{}   `json:"fees_split"`
+	Authorization      Authorization `json:"authorization"`
+	Customer           Customer      `json:"customer"`
+	Plan               interface{}   `json:"plan"`
+	Split              interface{}   `json:"split"`
+	OrderID            interface{}   `json:"order_id"`
+	PaidAt             string        `json:"paidAt"`
+	CreatedAt          string        `json:"createdAt"`
+	RequestedAmount    int           `json:"requested_amount"`
+	PosTransactionData interface{}   `json:"pos_transaction_data"`
+	Source             interface{}   `json:"source"`
+	FeesBreakdown      interface{}   `json:"fees_breakdown"`
+	TransactionDate    string        `json:"transaction_date"`
+	PlanObject         interface{}   `json:"plan_object"`
+	Subaccount         interface{}   `json:"subaccount"`
 }
 
 func newTransaction(client *Client) *Transaction {
@@ -190,7 +190,10 @@ func (t *Transaction) Verify(ctx context.Context, reference string) (*Transactio
 	return resp, err
 }
 
-func (t *Transaction) ListN(ctx context.Context, params ...TransactionListQuery) (*TransactionList, error) {
+//	List of transactions
+//
+// For more details see https://paystack.com/docs/api/transaction/#list
+func (t *Transaction) List(ctx context.Context, params ...TransactionListQuery) (*TransactionList, error) {
 	var url string
 	if len(params) > 0 {
 		url = fmt.Sprintf("/transaction%s", buildTransactionListQuery(params...))
@@ -199,6 +202,15 @@ func (t *Transaction) ListN(ctx context.Context, params ...TransactionListQuery)
 	}
 	resp := &TransactionList{}
 
+	err := getResource(ctx, t.client, url, resp)
+	return resp, err
+}
+
+// Fetch a transaction
+// For more details see https://paystack.com/docs/api/transaction/#fetch
+func (t *Transaction) FetchById(ctx context.Context, id int) (*TransactionResponse, error) {
+	url := fmt.Sprintf("/transaction/%v", id)
+	resp := &TransactionResponse{}
 	err := getResource(ctx, t.client, url, resp)
 	return resp, err
 }
