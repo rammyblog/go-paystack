@@ -135,7 +135,7 @@ func parseAPIResponse(c *Client, resp *http.Response, resultPtr interface{}) err
 		return newAPIError(resp, response)
 	}
 
-	c.log.Info(fmt.Sprintln("Paystack response: %v\n", resp))
+	c.log.Info(fmt.Sprintln("Paystack response: %v\n", response["data"]))
 	// looking for a more betterway
 	if data, ok := response["data"]; ok {
 		switch t := response["data"].(type) {

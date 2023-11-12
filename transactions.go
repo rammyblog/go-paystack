@@ -31,21 +31,6 @@ type Authorization struct {
 	AccountName       interface{} `json:"account_name"`
 }
 
-// type Log struct {
-// 	StartTime int           `json:"start_time"`
-// 	TimeSpent int           `json:"time_spent"`
-// 	Attempts  int           `json:"attempts"`
-// 	Errors    int           `json:"errors"`
-// 	Success   bool          `json:"success"`
-// 	Mobile    bool          `json:"mobile"`
-// 	Input     []interface{} `json:"input"`
-// 	History   []struct {
-// 		Type    string `json:"type"`
-// 		Message string `json:"message"`
-// 		Time    int    `json:"time"`
-// 	} `json:"history"`
-// }
-
 type Customer struct {
 	ID                       int         `json:"id"`
 	FirstName                interface{} `json:"first_name"`
@@ -75,7 +60,6 @@ type TransactionTimeline struct {
 	} `json:"history,omitempty"`
 }
 
-type GenericResponse map[string]interface{}
 
 // TransactionRequest represents a request to start a transaction.
 type TransactionRequest struct {
@@ -164,7 +148,7 @@ func (t *Transaction) Verify(ctx context.Context, reference string) (*Transactio
 //	List of transactions
 //
 // For more details see https://paystack.com/docs/api/transaction/#list
-func (t *Transaction) List(ctx context.Context, params ...QueryType) (interface{}, error) {
+func (t *Transaction) List(ctx context.Context, params ...QueryType) (*TransactionList, error) {
 	var url string
 	if len(params) > 0 {
 		url = addQueryToUrl("transaction", params...)

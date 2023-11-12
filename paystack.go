@@ -11,17 +11,20 @@ import (
 )
 
 type Client struct {
-	APIKey      string
-	HttpClient  *http.Client
-	log         *slog.Logger
-	Transaction *Transaction
-	BaseUrl     *url.URL
+	APIKey           string
+	HttpClient       *http.Client
+	log              *slog.Logger
+	Transaction      *Transaction
+	TransactionSplit *TransactionSplit
+	BaseUrl          *url.URL
 }
 
 const BASE_URL = "https://api.paystack.co"
 
 // Response represents arbitrary response data
 type APIResponse map[string]interface{}
+
+type GenericResponse map[string]interface{}
 
 type Metadata map[string]interface{}
 
@@ -50,6 +53,7 @@ func NewClient(apiKey string) *Client {
 	parsedUrl, _ := url.Parse(BASE_URL)
 	c := &Client{APIKey: apiKey, HttpClient: httpClient, log: logger, BaseUrl: parsedUrl}
 	c.Transaction = newTransaction(c)
+	c.TransactionSplit = newTransactionSplit(c)
 
 	return c
 }
