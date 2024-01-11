@@ -16,6 +16,7 @@ type Client struct {
 	log              *slog.Logger
 	Transaction      *Transaction
 	TransactionSplit *TransactionSplit
+	Plan             *Plans
 	BaseUrl          *url.URL
 }
 
@@ -54,6 +55,7 @@ func NewClient(apiKey string) *Client {
 	c := &Client{APIKey: apiKey, HttpClient: httpClient, log: logger, BaseUrl: parsedUrl}
 	c.Transaction = newTransaction(c)
 	c.TransactionSplit = newTransactionSplit(c)
+	c.Plan = newPlans(c)
 
 	return c
 }
