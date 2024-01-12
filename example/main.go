@@ -6,10 +6,10 @@ import (
 	"github.com/rammyblog/go-paystack"
 )
 
-const APIKey = "sk_test_00000000000000"
+const APIKey = "sk_test_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 
 func main() {
 	ctx := context.Background()
 	newClient := paystack.NewClient(APIKey)
-	updatePlan(ctx, newClient)
+	DisableSubscription(ctx, newClient)
 }

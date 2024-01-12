@@ -50,26 +50,6 @@ type PlanSplitList struct {
 	Data []PlanSplitResponse `json:"data"`
 }
 
-type SubscriptionResponse struct {
-	Customer         int           `json:"customer,omitempty"`
-	Plan             int           `json:"plan,omitempty"`
-	Integration      int           `json:"integration,omitempty"`
-	Domain           string        `json:"domain,omitempty"`
-	Start            int           `json:"start,omitempty"`
-	Status           string        `json:"status,omitempty"`
-	Quantity         int           `json:"quantity,omitempty"`
-	Amount           int           `json:"amount,omitempty"`
-	SubscriptionCode string        `json:"subscription_code,omitempty"`
-	EmailToken       string        `json:"email_token,omitempty"`
-	Authorization    Authorization `json:"authorization,omitempty"`
-	EasyCronID       interface{}   `json:"easy_cron_id,omitempty"`
-	CronExpression   string        `json:"cron_expression,omitempty"`
-	NextPaymentDate  string        `json:"next_payment_date,omitempty"`
-	OpenInvoice      interface{}   `json:"open_invoice,omitempty"`
-	ID               int           `json:"id,omitempty"`
-	CreatedAt        string        `json:"createdAt,omitempty"`
-	UpdatedAt        string        `json:"updatedAt,omitempty"`
-}
 
 type PlanSplitResponse struct {
 	Subscription      []SubscriptionResponse `json:"subscription,omitempty"`

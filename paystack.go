@@ -17,6 +17,7 @@ type Client struct {
 	Transaction      *Transaction
 	TransactionSplit *TransactionSplit
 	Plan             *Plans
+	Subscription     *Subscription
 	BaseUrl          *url.URL
 }
 
@@ -56,6 +57,7 @@ func NewClient(apiKey string) *Client {
 	c.Transaction = newTransaction(c)
 	c.TransactionSplit = newTransactionSplit(c)
 	c.Plan = newPlans(c)
+	c.Subscription = newSubscription(c)
 
 	return c
 }
