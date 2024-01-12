@@ -131,11 +131,11 @@ func parseAPIResponse(c *Client, resp *http.Response, resultPtr interface{}) err
 	}
 
 	if status, _ := response["status"].(bool); !status || resp.StatusCode >= 400 {
-		c.log.Error(fmt.Sprintln("Paystack response: %v\n", resp))
+		// c.log.Error(fmt.Sprintln("Paystack response: %v\n", resp))
 		return newAPIError(resp, response)
 	}
 
-	c.log.Info(fmt.Sprintln("Paystack response: %v\n", response["data"]))
+	// c.log.Info(fmt.Sprintln("Paystack response: %v\n", response["data"]))
 	// looking for a more betterway
 	if data, ok := response["data"]; ok {
 		switch t := response["data"].(type) {
