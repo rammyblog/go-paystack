@@ -5,13 +5,13 @@ This is a Go client library for Paystack, a payments platform that allows you to
 ## Installation
 
 ```bash
-go get github.com/yourusername/go-paystack
+go get https://github.com/rammyblog/go-paystack
 ```
 
 ## Usage
 
 ```go
-import "github.com/yourusername/go-paystack"
+import "https://github.com/rammyblog/go-paystack"
 
 client := paystack.NewClient("your_secret_key")
 
@@ -40,11 +40,6 @@ Please make sure to update tests as appropriate.
 ## License
 
 [MIT](https://choosealicense.com/licenses/mit/)
-
-```
-
-Remember to replace `"github.com/yourusername/go-paystack"` with the actual path to your Go package.
-```
 
 
 ## TODO
