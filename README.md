@@ -11,16 +11,30 @@ go get https://github.com/rammyblog/go-paystack
 ## Usage
 
 ```go
-import "https://github.com/rammyblog/go-paystack"
+import (
+        "https://github.com/rammyblog/go-paystack"
+        "context"
+        "time"
 
+        )
+
+
+ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 client := paystack.NewClient("your_secret_key")
 
 // Create a new transaction
-transaction, err := client.Transaction.Create(&paystack.TransactionRequest{
-    Amount:   5000,
-    Email:    "customer@example.com",
-    Currency: "NGN",
-})
+	resp, err := c.Transaction.Initialize(ctx, &paystack.TransactionRequest{
+		Amount:      100000,
+		Email:       "Onas@gmail.com",
+		Currency:    "NGN",
+		Reference:   "yinmu",
+		CallbackURL: "https://ngrok.com/rammyblof",
+	})
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+	log.Printf("\n Initialize transaction \n-%+v\n", resp.AuthorizationURL)
 ```
 
 ## Testing
@@ -40,7 +54,6 @@ Please make sure to update tests as appropriate.
 ## License
 
 [MIT](https://choosealicense.com/licenses/mit/)
-
 
 ## TODO
 
