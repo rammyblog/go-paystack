@@ -12,14 +12,14 @@ func initializeTransaction(ctx context.Context, c *paystack.Client) {
 		Amount:      100000,
 		Email:       "Onas@gmail.com",
 		Currency:    "NGN",
-		Reference:   "yinmu",
+		Reference:   "yinmusss",
 		CallbackURL: "https://ngrok.com/rammyblof",
 	})
 	if err != nil {
 		log.Fatal(err)
 		return
 	}
-	log.Printf("\n Initialize transaction \n-%+v\n", resp.AuthorizationURL)
+	log.Printf("\n Initialize transaction \n-%+v\n", resp)
 }
 
 func verifyTransaction(ctx context.Context, c *paystack.Client) {
