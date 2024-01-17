@@ -5,8 +5,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io"
-	"log"
 	"net/http"
 
 	"github.com/mitchellh/mapstructure"
@@ -109,33 +107,17 @@ func doReq(c *Client, req *http.Request, res interface{}) error {
 }
 
 func parseAPIResponse(c *Client, resp *http.Response, resultPtr interface{}) error {
-
-	b, err := io.ReadAll(resp.Body)
-
-	if err != nil {
-		return fmt.Errorf("error while reading the response bytes - %+v", err)
-	}
-
-	defer func() {
-		err := resp.Body.Close()
-		if err != nil {
-			log.Println("error closing response body - ", err)
-		}
-	}()
-
 	var response APIResponse
+	err := json.NewDecoder(resp.Body).Decode(&response)
 
-	err = json.Unmarshal(b, &response)
 	if err != nil {
 		return fmt.Errorf("error while unmarshalling the response bytes %+v ", err)
 	}
 
 	if status, _ := response["status"].(bool); !status || resp.StatusCode >= 400 {
-		// c.log.Error(fmt.Sprintln("Paystack response: %v\n", resp))
 		return newAPIError(resp, response)
 	}
 
-	// c.log.Info(fmt.Sprintln("Paystack response: %v\n", response["data"]))
 	// looking for a more betterway
 	if data, ok := response["data"]; ok {
 		switch t := response["data"].(type) {

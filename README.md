@@ -28,7 +28,7 @@ client := paystack.NewClient("your_secret_key")
 		Email:       "Onas@gmail.com",
 		Currency:    "NGN",
 		Reference:   "yinmu",
-		CallbackURL: "https://ngrok.com/rammyblof",
+		CallbackURL: "https://ngrok.com/rammybloh",
 	})
 	if err != nil {
 		log.Fatal(err)
