@@ -2,10 +2,8 @@ package paystack
 
 import (
 	"fmt"
-	"log/slog"
 	"net/http"
 	"net/url"
-	"os"
 	"strings"
 	"time"
 )
@@ -13,7 +11,7 @@ import (
 type Client struct {
 	APIKey           string
 	HttpClient       *http.Client
-	log              *slog.Logger
+	logger           Logger
 	Transaction      *Transaction
 	TransactionSplit *TransactionSplit
 	Plan             *Plans
@@ -45,15 +43,18 @@ type PaginationMeta struct {
 }
 
 // NewClient creates a new Paystack API client with the given API key.
-func NewClient(apiKey string) *Client {
+func NewClient(apiKey string, config *LogConfig) *Client {
 	httpClient := &http.Client{
 		Timeout: 5 * time.Second,
 	}
 
-	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
-
 	parsedUrl, _ := url.Parse(BASE_URL)
-	c := &Client{APIKey: apiKey, HttpClient: httpClient, log: logger, BaseUrl: parsedUrl}
+	c := &Client{
+		APIKey:     apiKey,
+		HttpClient: httpClient,
+		logger:     newLogger(config),
+		BaseUrl:    parsedUrl,
+	}
 	c.Transaction = newTransaction(c)
 	c.TransactionSplit = newTransactionSplit(c)
 	c.Plan = newPlans(c)
