@@ -2,11 +2,12 @@ package main
 
 import (
 	"context"
+	"log"
 
 	"github.com/rammyblog/go-paystack"
 )
 
-const APIKey = "sk_test_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+const APIKey = "x"
 
 func main() {
 	ctx := context.Background()

@@ -107,8 +107,20 @@ func (c *Client) doReq(req *_http.Request, res interface{}) error {
 	}
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", c.APIKey))
 	req.Header.Set("User-Agent", userAgent)
+
+	c.logger.WithContext(ctx).Debug("sending request",
+		"method", req.Method,
+		"url", req.URL.String(),
+		"headers", req.Header,
+	)
+
 	resp, err := c.HttpClient.Do(req)
 	if err != nil {
+		c.logger.Error("request failed",
+			"error", err,
+			"method", req.Method,
+			"url", req.URL.String(),
+		)
 		return fmt.Errorf("error processing request - %+v", err)
 	}
 
@@ -116,6 +128,10 @@ func (c *Client) doReq(req *_http.Request, res interface{}) error {
 
 	err = c.parseAPIResponse(resp, res)
 	if err != nil {
+		c.logger.Error("failed to parse response",
+			"error", err,
+			"status", resp.Status,
+		)
 		return err
 	}
 
