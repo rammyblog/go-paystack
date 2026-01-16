@@ -3,17 +3,29 @@ package main
 import (
 	"context"
 	"log"
+	"math/rand"
+	"strings"
 
 	"github.com/rammyblog/go-paystack"
 	"github.com/rammyblog/go-paystack/transaction"
 )
 
+const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+
+func randomString(length int) string {
+	var sb strings.Builder
+	sb.Grow(length)
+	for i := 0; i < length; i++ {
+		sb.WriteByte(charset[rand.Intn(len(charset))])
+	}
+	return sb.String()
+}
 func initializeTransaction(ctx context.Context, c *paystack.Client) {
 	resp, err := c.Transaction.Initialize(ctx, &transaction.TransactionRequest{
 		Amount:      100000,
 		Email:       "Onas@gmail.com",
 		Currency:    "NGN",
-		Reference:   "yinmusss",
+		Reference:   randomString(49),
 		CallbackURL: "https://ngrok.com/rammyblof",
 	})
 	if err != nil {
