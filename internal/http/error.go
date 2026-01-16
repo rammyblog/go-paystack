@@ -1,6 +1,4 @@
-// From https://github.dev/rpip/paystack-go/blob/master/paystack.go
-
-package paystack
+package http
 
 import (
 	"encoding/json"
@@ -29,7 +27,7 @@ type ErrorResponse struct {
 	Message string `json:"message,omitempty"`
 }
 
-func newAPIError(resp *http.Response, data map[string]interface{}) *APIError {
+func NewAPIError(resp *http.Response, data map[string]interface{}) *APIError {
 	response := ErrorResponse{
 		Status:  data["status"].(bool),
 		Message: data["message"].(string),

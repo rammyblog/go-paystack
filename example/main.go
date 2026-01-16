@@ -10,6 +10,6 @@ const APIKey = "sk_test_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 
 func main() {
 	ctx := context.Background()
-	newClient := paystack.NewClient(APIKey)
+	newClient := paystack.New(APIKey)
 	initializeTransaction(ctx, newClient)
 }

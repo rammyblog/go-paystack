@@ -5,11 +5,12 @@ import (
 	"log"
 
 	"github.com/rammyblog/go-paystack"
+	"github.com/rammyblog/go-paystack/subscription"
 )
 
 func CreateSubscription(ctx context.Context, c *paystack.Client) {
 	// Create a subscription
-	resp, err := c.Subscription.CreateSubscription(ctx, &paystack.CreateSubscriptionRequest{
+	resp, err := c.Subscription.CreateSubscription(ctx, &subscription.CreateSubscriptionRequest{
 		Customer: "CUS_potop1jwzmml5ng  ",
 		Plan:     "PLN_48mmlpyngprj1fk",
 	})
@@ -42,7 +43,7 @@ func FetchSubscription(ctx context.Context, c *paystack.Client) {
 
 func EnableSubscription(ctx context.Context, c *paystack.Client) {
 	// Enable a subscription
-	resp, err := c.Subscription.Enable(ctx, &paystack.EnableDisableSubscriptionRequest{
+	resp, err := c.Subscription.Enable(ctx, &subscription.EnableDisableSubscriptionRequest{
 		Code: "SUB_369x89yaz8ifiym",
 	})
 	if err != nil {
@@ -54,7 +55,7 @@ func EnableSubscription(ctx context.Context, c *paystack.Client) {
 
 func DisableSubscription(ctx context.Context, c *paystack.Client) {
 	// Disable a subscription
-	resp, err := c.Subscription.Disable(ctx, &paystack.EnableDisableSubscriptionRequest{
+	resp, err := c.Subscription.Disable(ctx, &subscription.EnableDisableSubscriptionRequest{
 		Code: "SUB_369x89yaz8ifiym",
 	})
 	if err != nil {
