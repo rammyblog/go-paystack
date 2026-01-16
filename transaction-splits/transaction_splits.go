@@ -35,7 +35,7 @@ func (ts *TransactionSplit) List(ctx context.Context, params ...types.QueryType)
 	if len(params) > 0 {
 		url = helpers.AddQueryToUrl("split", params...)
 	} else {
-		url = "/split"
+		url = "split"
 	}
 	resp := &TransactionSplitList{}
 

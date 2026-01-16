@@ -31,7 +31,7 @@ func (t *Transaction) Initialize(ctx context.Context, txn *TransactionRequest) (
 //
 // For more details see https://paystack.com/docs/api/transaction/#verify
 func (t *Transaction) Verify(ctx context.Context, reference string) (*TransactionResponse, error) {
-	url := fmt.Sprintf("/transaction/verify/%s", reference)
+	url := fmt.Sprintf("transaction/verify/%s", reference)
 	resp := &TransactionResponse{}
 	err := t.client.GetResource(ctx, url, resp)
 	return resp, err
@@ -45,7 +45,7 @@ func (t *Transaction) List(ctx context.Context, params ...types.QueryType) (*Tra
 	if len(params) > 0 {
 		url = helpers.AddQueryToUrl("transaction", params...)
 	} else {
-		url = "/transaction"
+		url = "transaction"
 	}
 	resp := &TransactionList{}
 

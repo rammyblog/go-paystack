@@ -14,7 +14,7 @@ import (
 
 const (
 	// User agent used when communicating with the Paystack API.
-	userAgent = "Mozilla/5.0 (Unknown; Linux) AppleWebKit/538.1 (KHTML, like Gecko) Chrome/v1.0.0 Safari/538.1"
+	userAgent = "go-paystack/1.0.0"
 )
 
 func mapstruct(data interface{}, v interface{}) error {
@@ -32,7 +32,10 @@ func mapstruct(data interface{}, v interface{}) error {
 }
 
 func (c *Client) PostResource(ctx context.Context, url string, body interface{}, res interface{}) error {
-	reqUrl, _ := c.BaseUrl.Parse(url)
+	reqUrl, err := c.BaseUrl.Parse(url)
+	if err != nil {
+		return fmt.Errorf("invalid URL %q: %w", url, err)
+	}
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return err
@@ -48,7 +51,10 @@ func (c *Client) PostResource(ctx context.Context, url string, body interface{},
 }
 
 func (c *Client) PutResource(ctx context.Context, url string, body interface{}, res interface{}) error {
-	reqUrl, _ := c.BaseUrl.Parse(url)
+	reqUrl, err := c.BaseUrl.Parse(url)
+	if err != nil {
+		return fmt.Errorf("invalid URL %q: %w", url, err)
+	}
 	if body == nil {
 		body = `{}`
 	}
@@ -67,7 +73,10 @@ func (c *Client) PutResource(ctx context.Context, url string, body interface{}, 
 }
 
 func (c *Client) GetResource(ctx context.Context, url string, res interface{}) error {
-	reqUrl, _ := c.BaseUrl.Parse(url)
+	reqUrl, err := c.BaseUrl.Parse(url)
+	if err != nil {
+		return fmt.Errorf("invalid URL %q: %w", url, err)
+	}
 
 	req, err := _http.NewRequestWithContext(ctx, _http.MethodGet, reqUrl.String(), nil)
 	if err != nil {
@@ -78,7 +87,10 @@ func (c *Client) GetResource(ctx context.Context, url string, res interface{}) e
 }
 
 func (c *Client) DeleteResource(ctx context.Context, url string, res interface{}) error {
-	reqUrl, _ := c.BaseUrl.Parse(url)
+	reqUrl, err := c.BaseUrl.Parse(url)
+	if err != nil {
+		return fmt.Errorf("invalid URL %q: %w", url, err)
+	}
 
 	req, err := _http.NewRequestWithContext(ctx, _http.MethodDelete, reqUrl.String(), nil)
 	if err != nil {
@@ -99,6 +111,8 @@ func (c *Client) doReq(req *_http.Request, res interface{}) error {
 	if err != nil {
 		return fmt.Errorf("error processing request - %+v", err)
 	}
+
+	defer resp.Body.Close()
 
 	err = c.parseAPIResponse(resp, res)
 	if err != nil {

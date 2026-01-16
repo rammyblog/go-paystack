@@ -2,18 +2,19 @@ package helpers
 
 import (
 	"fmt"
+	"net/url"
 	"strings"
 
 	"github.com/rammyblog/go-paystack/internal/types"
 )
 
-func AddQueryToUrl(url string, queries ...types.QueryType) string {
+func AddQueryToUrl(baseUrl string, queries ...types.QueryType) string {
 	for _, query := range queries {
-		if strings.Contains(url, "?") {
-			url += fmt.Sprintf("&%s=%s", query.Key, query.Value)
+		if strings.Contains(baseUrl, "?") {
+			baseUrl += fmt.Sprintf("&%s=%s", query.Key, url.QueryEscape(query.Value))
 		} else {
-			url += fmt.Sprintf("?%s=%s", query.Key, query.Value)
+			baseUrl += fmt.Sprintf("?%s=%s", query.Key, url.QueryEscape(query.Value))
 		}
 	}
-	return url
+	return baseUrl
 }

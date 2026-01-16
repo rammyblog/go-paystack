@@ -28,9 +28,20 @@ type ErrorResponse struct {
 }
 
 func NewAPIError(resp *http.Response, data map[string]interface{}) *APIError {
+	var status bool
+	var message string
+
+	if s, ok := data["status"].(bool); ok {
+		status = s
+	}
+
+	if m, ok := data["message"].(string); ok {
+		message = m
+	}
+
 	response := ErrorResponse{
-		Status:  data["status"].(bool),
-		Message: data["message"].(string),
+		Status:  status,
+		Message: message,
 	}
 	return &APIError{
 		HTTPStatusCode: resp.StatusCode,

@@ -27,16 +27,42 @@ type Client struct {
 	BaseUrl          *url.URL
 }
 
+type ClientOption func(*Client)
+
+func WithHTTPClient(httpClient *http.Client) ClientOption {
+	return func(c *Client) {
+		c.HttpClient = httpClient
+	}
+}
+
+func WithTimeout(d time.Duration) ClientOption {
+	return func(c *Client) {
+		if c.HttpClient == nil {
+			c.HttpClient = &http.Client{}
+		}
+		c.HttpClient.Timeout = d
+	}
+}
+
+func WithLogger(l *slog.Logger) ClientOption {
+	return func(c *Client) {
+		c.Log = l
+	}
+}
+
 // NewClient creates a new Paystack API client with the given API key.
-func New(apiKey string) *Client {
+func New(apiKey string, opts ...ClientOption) *Client {
+	parsedUrl, _ := url.Parse(BASE_URL)
 	httpClient := &http.Client{
 		Timeout: 5 * time.Second,
 	}
-
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 
-	parsedUrl, _ := url.Parse(BASE_URL)
 	c := &Client{APIKey: apiKey, HttpClient: httpClient, Log: logger, BaseUrl: parsedUrl}
+
+	for _, opt := range opts {
+		opt(c)
+	}
 	c.Transaction = transaction.New(c)
 	c.TransactionSplit = transaction_splits.New(c)
 	c.Plan = plans.New(c)
