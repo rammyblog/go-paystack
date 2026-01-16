@@ -5,14 +5,16 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"net/http"
+	_http "net/http"
 
 	"github.com/mitchellh/mapstructure"
+	"github.com/rammyblog/go-paystack/internal/http"
+	"github.com/rammyblog/go-paystack/internal/types"
 )
 
 const (
 	// User agent used when communicating with the Paystack API.
-	userAgent = "Mozilla/5.0 (Unknown; Linux) AppleWebKit/538.1 (KHTML, like Gecko) Chrome/v1.0.0 Safari/538.1"
+	userAgent = "go-paystack/1.0.0"
 )
 
 func mapstruct(data interface{}, v interface{}) error {
@@ -29,24 +31,30 @@ func mapstruct(data interface{}, v interface{}) error {
 	return err
 }
 
-func postResource(ctx context.Context, c *Client, url string, body interface{}, res interface{}) error {
-	reqUrl, _ := c.BaseUrl.Parse(url)
+func (c *Client) PostResource(ctx context.Context, url string, body interface{}, res interface{}) error {
+	reqUrl, err := c.BaseUrl.Parse(url)
+	if err != nil {
+		return fmt.Errorf("invalid URL %q: %w", url, err)
+	}
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return err
 	}
 
 	payload := bytes.NewBuffer(buf)
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, reqUrl.String(), payload)
+	req, err := _http.NewRequestWithContext(ctx, _http.MethodPost, reqUrl.String(), payload)
 	if err != nil {
 		return err
 	}
 
-	return doReq(c, req, res, ctx)
+	return c.doReq(req, res)
 }
 
-func putResource(ctx context.Context, c *Client, url string, body interface{}, res interface{}) error {
-	reqUrl, _ := c.BaseUrl.Parse(url)
+func (c *Client) PutResource(ctx context.Context, url string, body interface{}, res interface{}) error {
+	reqUrl, err := c.BaseUrl.Parse(url)
+	if err != nil {
+		return fmt.Errorf("invalid URL %q: %w", url, err)
+	}
 	if body == nil {
 		body = `{}`
 	}
@@ -57,36 +65,43 @@ func putResource(ctx context.Context, c *Client, url string, body interface{}, r
 	}
 
 	payload := bytes.NewBuffer(buf)
-	req, err := http.NewRequestWithContext(ctx, http.MethodPut, reqUrl.String(), payload)
+	req, err := _http.NewRequestWithContext(ctx, _http.MethodPut, reqUrl.String(), payload)
 	if err != nil {
 		return err
 	}
-	return doReq(c, req, res, ctx)
+	return c.doReq(req, res)
 }
 
-func getResource(ctx context.Context, c *Client, url string, res interface{}) error {
-	reqUrl, _ := c.BaseUrl.Parse(url)
-
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, reqUrl.String(), nil)
+func (c *Client) GetResource(ctx context.Context, url string, res interface{}) error {
+	reqUrl, err := c.BaseUrl.Parse(url)
 	if err != nil {
-		return err
+		return fmt.Errorf("invalid URL %q: %w", url, err)
 	}
 
-	return doReq(c, req, res, ctx)
-}
-
-func deleteResource(ctx context.Context, c *Client, url string, res interface{}) error {
-	reqUrl, _ := c.BaseUrl.Parse(url)
-
-	req, err := http.NewRequestWithContext(ctx, http.MethodDelete, reqUrl.String(), nil)
+	req, err := _http.NewRequestWithContext(ctx, _http.MethodGet, reqUrl.String(), nil)
 	if err != nil {
 		return err
 	}
 
-	return doReq(c, req, res, ctx)
+	return c.doReq(req, res)
 }
 
-func doReq(c *Client, req *http.Request, res interface{}, ctx context.Context) error {
+func (c *Client) DeleteResource(ctx context.Context, url string, res interface{}) error {
+	reqUrl, err := c.BaseUrl.Parse(url)
+	if err != nil {
+		return fmt.Errorf("invalid URL %q: %w", url, err)
+	}
+
+	req, err := _http.NewRequestWithContext(ctx, _http.MethodDelete, reqUrl.String(), nil)
+	if err != nil {
+		return err
+	}
+
+	return c.doReq(req, res)
+}
+
+func (c *Client) doReq(req *_http.Request, res interface{}) error {
+
 	if req.Body != nil {
 		req.Header.Set("Content-Type", "application/json")
 	}
@@ -109,7 +124,9 @@ func doReq(c *Client, req *http.Request, res interface{}, ctx context.Context) e
 		return fmt.Errorf("error processing request - %+v", err)
 	}
 
-	err = parseAPIResponse(c, resp, res)
+	defer resp.Body.Close()
+
+	err = c.parseAPIResponse(resp, res)
 	if err != nil {
 		c.logger.Error("failed to parse response",
 			"error", err,
@@ -121,8 +138,8 @@ func doReq(c *Client, req *http.Request, res interface{}, ctx context.Context) e
 	return nil
 }
 
-func parseAPIResponse(c *Client, resp *http.Response, resultPtr interface{}) error {
-	var response APIResponse
+func (c *Client) parseAPIResponse(resp *_http.Response, resultPtr interface{}) error {
+	var response types.APIResponse
 	err := json.NewDecoder(resp.Body).Decode(&response)
 
 	if err != nil {
@@ -130,7 +147,7 @@ func parseAPIResponse(c *Client, resp *http.Response, resultPtr interface{}) err
 	}
 
 	if status, _ := response["status"].(bool); !status || resp.StatusCode >= 400 {
-		return newAPIError(resp, response)
+		return http.NewAPIError(resp, response)
 	}
 
 	// looking for a more betterway

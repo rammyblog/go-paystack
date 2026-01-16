@@ -5,13 +5,14 @@ import (
 	"log"
 
 	"github.com/rammyblog/go-paystack"
+	transaction_splits "github.com/rammyblog/go-paystack/transaction-splits"
 )
 
 func createTransactionSplit(ctx context.Context, c *paystack.Client) {
-	subaccountArray := []paystack.TransactionSplitSubAccount{
+	subaccountArray := []transaction_splits.TransactionSplitSubAccount{
 		{Subaccount: "ACCT_jo822mgh7xbjzqk", Share: 60},
 	}
-	resp, err := c.TransactionSplit.Create(ctx, &paystack.TransactionSplitRequest{
+	resp, err := c.TransactionSplit.Create(ctx, &transaction_splits.TransactionSplitRequest{
 		Name:             "Percentage Split",
 		Type:             "percentage",
 		Currency:         "NGN",
@@ -50,7 +51,7 @@ func fetchTransactionSplit(ctx context.Context, c *paystack.Client) {
 
 func updateTransactionSplit(ctx context.Context, c *paystack.Client) {
 
-	resp, err := c.TransactionSplit.Update(ctx, "1499896", &paystack.TransactionSplitRequest{
+	resp, err := c.TransactionSplit.Update(ctx, "1499896", &transaction_splits.TransactionSplitRequest{
 		Name:   "Updated name",
 		Active: false,
 	})
@@ -63,7 +64,7 @@ func updateTransactionSplit(ctx context.Context, c *paystack.Client) {
 
 func addSubaccountToTransactionSplit(ctx context.Context, c *paystack.Client) {
 
-	resp, err := c.TransactionSplit.AddSubaccount(ctx, "1499896", &paystack.TransactionSplitSubAccount{
+	resp, err := c.TransactionSplit.AddSubaccount(ctx, "1499896", &transaction_splits.TransactionSplitSubAccount{
 		Subaccount: "ACCT_ch9drs2a9pka9fb",
 		Share:      10,
 	})
@@ -76,7 +77,7 @@ func addSubaccountToTransactionSplit(ctx context.Context, c *paystack.Client) {
 
 func removeSubaccountToTransactionSplit(ctx context.Context, c *paystack.Client) {
 
-	resp, err := c.TransactionSplit.RemoveSubaccount(ctx, "1499896", &paystack.TransactionSplitSubAccount{
+	resp, err := c.TransactionSplit.RemoveSubaccount(ctx, "1499896", &transaction_splits.TransactionSplitSubAccount{
 		Subaccount: "ACCT_ch9drs2a9pka9fb",
 	})
 	if err != nil {

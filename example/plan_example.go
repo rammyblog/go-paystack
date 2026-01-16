@@ -5,11 +5,12 @@ import (
 	"log"
 
 	"github.com/rammyblog/go-paystack"
+	"github.com/rammyblog/go-paystack/plans"
 )
 
 func createPlan(ctx context.Context, c *paystack.Client) {
 	// Create a plan
-	resp, err := c.Plan.Create(ctx, &paystack.CreatePlanRequest{
+	resp, err := c.Plan.Create(ctx, &plans.CreatePlanRequest{
 		Name:        "Monthly retainer",
 		Amount:      500000,
 		Interval:    "monthly",
@@ -44,7 +45,7 @@ func fetchPlan(ctx context.Context, c *paystack.Client) {
 
 func updatePlan(ctx context.Context, c *paystack.Client) {
 	// Update a plan
-	resp, err := c.Plan.Update(ctx, "PLN_48mmlpyngprj1fk", &paystack.CreatePlanRequest{
+	resp, err := c.Plan.Update(ctx, "PLN_48mmlpyngprj1fk", &plans.CreatePlanRequest{
 		Name:        "Annual retainer",
 		Amount:      60000,
 		Interval:    "annually",

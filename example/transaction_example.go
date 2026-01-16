@@ -3,16 +3,29 @@ package main
 import (
 	"context"
 	"log"
+	"math/rand"
+	"strings"
 
 	"github.com/rammyblog/go-paystack"
+	"github.com/rammyblog/go-paystack/transaction"
 )
 
+const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+
+func randomString(length int) string {
+	var sb strings.Builder
+	sb.Grow(length)
+	for i := 0; i < length; i++ {
+		sb.WriteByte(charset[rand.Intn(len(charset))])
+	}
+	return sb.String()
+}
 func initializeTransaction(ctx context.Context, c *paystack.Client) {
-	resp, err := c.Transaction.Initialize(ctx, &paystack.TransactionRequest{
+	resp, err := c.Transaction.Initialize(ctx, &transaction.TransactionRequest{
 		Amount:      100000,
 		Email:       "Onas@gmail.com",
 		Currency:    "NGN",
-		Reference:   "yinmusss",
+		Reference:   randomString(49),
 		CallbackURL: "https://ngrok.com/rammyblof",
 	})
 	if err != nil {
@@ -51,7 +64,7 @@ func fetchTransaction(ctx context.Context, c *paystack.Client) {
 
 func chargeTransaction(ctx context.Context, c *paystack.Client) {
 
-	resp, err := c.Transaction.Charge(ctx, &paystack.TransactionRequest{
+	resp, err := c.Transaction.Charge(ctx, &transaction.TransactionRequest{
 		AuthorizationCode: "AUTH_72btv547",
 		Amount:            1000000,
 		Email:             "onasanyatunde@gmail.com",
@@ -94,7 +107,7 @@ func exportTransaction(ctx context.Context, c *paystack.Client) {
 
 func partialDebit(ctx context.Context, c *paystack.Client) {
 
-	resp, err := c.Transaction.PartialDebit(ctx, &paystack.TransactionRequest{
+	resp, err := c.Transaction.PartialDebit(ctx, &transaction.TransactionRequest{
 		AuthorizationCode: "AUTH_72btv547",
 		Amount:            1000000,
 		Email:             "onas@gmail.com",
