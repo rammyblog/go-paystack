@@ -42,7 +42,7 @@ func postResource(ctx context.Context, c *Client, url string, body interface{}, 
 		return err
 	}
 
-	return doReq(c, req, res)
+	return doReq(c, req, res, ctx)
 }
 
 func putResource(ctx context.Context, c *Client, url string, body interface{}, res interface{}) error {
@@ -61,7 +61,7 @@ func putResource(ctx context.Context, c *Client, url string, body interface{}, r
 	if err != nil {
 		return err
 	}
-	return doReq(c, req, res)
+	return doReq(c, req, res, ctx)
 }
 
 func getResource(ctx context.Context, c *Client, url string, res interface{}) error {
@@ -72,7 +72,7 @@ func getResource(ctx context.Context, c *Client, url string, res interface{}) er
 		return err
 	}
 
-	return doReq(c, req, res)
+	return doReq(c, req, res, ctx)
 }
 
 func deleteResource(ctx context.Context, c *Client, url string, res interface{}) error {
@@ -83,23 +83,38 @@ func deleteResource(ctx context.Context, c *Client, url string, res interface{})
 		return err
 	}
 
-	return doReq(c, req, res)
+	return doReq(c, req, res, ctx)
 }
 
-func doReq(c *Client, req *http.Request, res interface{}) error {
-
+func doReq(c *Client, req *http.Request, res interface{}, ctx context.Context) error {
 	if req.Body != nil {
 		req.Header.Set("Content-Type", "application/json")
 	}
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", c.APIKey))
 	req.Header.Set("User-Agent", userAgent)
+
+	c.logger.WithContext(ctx).Debug("sending request",
+		"method", req.Method,
+		"url", req.URL.String(),
+		"headers", req.Header,
+	)
+
 	resp, err := c.HttpClient.Do(req)
 	if err != nil {
+		c.logger.Error("request failed",
+			"error", err,
+			"method", req.Method,
+			"url", req.URL.String(),
+		)
 		return fmt.Errorf("error processing request - %+v", err)
 	}
 
 	err = parseAPIResponse(c, resp, res)
 	if err != nil {
+		c.logger.Error("failed to parse response",
+			"error", err,
+			"status", resp.Status,
+		)
 		return err
 	}
 
