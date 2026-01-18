@@ -8,6 +8,30 @@ import (
 	"github.com/rammyblog/go-paystack/internal/types"
 )
 
+type TransactionService interface {
+	Initialize(ctx context.Context, txn *TransactionRequest) (*InitializeTransactionResponse, error)
+	Verify(ctx context.Context, reference string) (*TransactionResponse, error)
+	List(ctx context.Context, params ...types.QueryType) (*TransactionList, error)
+	FetchById(ctx context.Context, id int) (*TransactionResponse, error)
+	Charge(ctx context.Context, txn *TransactionRequest) (*TransactionResponse, error)
+	Total(ctx context.Context, params ...types.QueryType) (*types.GenericResponse, error)
+	Timeline(ctx context.Context, id_or_ref string) (*TransactionResponse, error)
+	Export(ctx context.Context, params ...types.QueryType) (*ExportTransaction, error)
+	PartialDebit(ctx context.Context, txn *TransactionRequest) (*TransactionResponse, error)
+}
+
+const (
+	INITIALIZE_TRANSACTION    = "transaction/initialize"
+	VERIFY_TRANSACTION        = "transaction/verify/%s"
+	LIST_TRANSACTION          = "transaction"
+	FETCH_TRANSACTION         = "transaction/%d"
+	CHARGE_AUTHORIZATION      = "transaction/charge_authorization"
+	TOTAL_TRANSACTION         = "transaction/totals"
+	TIMELINE_TRANSACTION      = "transaction/timeline/%s"
+	EXPORT_TRANSACTION        = "transaction/export"
+	PARTIAL_DEBIT_TRANSACTION = "transaction/partial_debit"
+)
+
 type Transaction struct {
 	client types.Requester
 }
@@ -21,7 +45,7 @@ func New(client types.Requester) *Transaction {
 // Initialize a transaction
 // For more details see https://paystack.com/docs/api/transaction/#initialize
 func (t *Transaction) Initialize(ctx context.Context, txn *TransactionRequest) (*InitializeTransactionResponse, error) {
-	url := "transaction/initialize"
+	url := INITIALIZE_TRANSACTION
 	resp := &InitializeTransactionResponse{}
 	err := t.client.PostResource(ctx, url, txn, resp)
 	return resp, err
@@ -31,7 +55,7 @@ func (t *Transaction) Initialize(ctx context.Context, txn *TransactionRequest) (
 //
 // For more details see https://paystack.com/docs/api/transaction/#verify
 func (t *Transaction) Verify(ctx context.Context, reference string) (*TransactionResponse, error) {
-	url := fmt.Sprintf("transaction/verify/%s", reference)
+	url := fmt.Sprintf(VERIFY_TRANSACTION, reference)
 	resp := &TransactionResponse{}
 	err := t.client.GetResource(ctx, url, resp)
 	return resp, err
@@ -41,14 +65,8 @@ func (t *Transaction) Verify(ctx context.Context, reference string) (*Transactio
 //
 // For more details see https://paystack.com/docs/api/transaction/#list
 func (t *Transaction) List(ctx context.Context, params ...types.QueryType) (*TransactionList, error) {
-	var url string
-	if len(params) > 0 {
-		url = helpers.AddQueryToUrl("transaction", params...)
-	} else {
-		url = "transaction"
-	}
+	url := helpers.AddQueryToUrl(LIST_TRANSACTION, params...)
 	resp := &TransactionList{}
-
 	err := t.client.GetResource(ctx, url, resp)
 	return resp, err
 }
@@ -56,7 +74,7 @@ func (t *Transaction) List(ctx context.Context, params ...types.QueryType) (*Tra
 // Fetch a transaction
 // For more details see https://paystack.com/docs/api/transaction/#fetch
 func (t *Transaction) FetchById(ctx context.Context, id int) (*TransactionResponse, error) {
-	url := fmt.Sprintf("/transaction/%v", id)
+	url := fmt.Sprintf(FETCH_TRANSACTION, id)
 	resp := &TransactionResponse{}
 	err := t.client.GetResource(ctx, url, resp)
 	return resp, err
@@ -65,7 +83,7 @@ func (t *Transaction) FetchById(ctx context.Context, id int) (*TransactionRespon
 // Charge Authorization
 // For more details see https://paystack.com/docs/api/transaction/#charge-authorization
 func (t *Transaction) Charge(ctx context.Context, txn *TransactionRequest) (*TransactionResponse, error) {
-	url := "transaction/charge_authorization"
+	url := CHARGE_AUTHORIZATION
 	resp := &TransactionResponse{}
 	err := t.client.PostResource(ctx, url, txn, resp)
 	return resp, err
@@ -74,12 +92,7 @@ func (t *Transaction) Charge(ctx context.Context, txn *TransactionRequest) (*Tra
 // Total Transactions
 // For more details see https://paystack.com/docs/api/transaction/#totals
 func (t *Transaction) Total(ctx context.Context, params ...types.QueryType) (*types.GenericResponse, error) {
-	var url string
-	if len(params) > 0 {
-		url = helpers.AddQueryToUrl("transaction/totals", params...)
-	} else {
-		url = "/transaction/totals"
-	}
+	url := helpers.AddQueryToUrl(TOTAL_TRANSACTION, params...)
 	resp := &types.GenericResponse{}
 	err := t.client.GetResource(ctx, url, resp)
 	return resp, err
@@ -88,7 +101,7 @@ func (t *Transaction) Total(ctx context.Context, params ...types.QueryType) (*ty
 // View the timeline of a transaction
 // For more details see https://paystack.com/docs/api/transaction/#view-timeline
 func (t *Transaction) Timeline(ctx context.Context, id_or_ref string) (*TransactionResponse, error) {
-	url := fmt.Sprintf("/transaction/timeline/%v", id_or_ref)
+	url := fmt.Sprintf(TIMELINE_TRANSACTION, id_or_ref)
 	resp := &TransactionResponse{}
 	err := t.client.GetResource(ctx, url, resp)
 	return resp, err
@@ -97,12 +110,7 @@ func (t *Transaction) Timeline(ctx context.Context, id_or_ref string) (*Transact
 // Export your transaction
 // For more details see https://paystack.com/docs/api/transaction/#export
 func (t *Transaction) Export(ctx context.Context, params ...types.QueryType) (*ExportTransaction, error) {
-	var url string
-	if len(params) > 0 {
-		url = helpers.AddQueryToUrl("transaction/export", params...)
-	} else {
-		url = "/transaction/export"
-	}
+	url := helpers.AddQueryToUrl(EXPORT_TRANSACTION, params...)
 	resp := &ExportTransaction{}
 	err := t.client.GetResource(ctx, url, resp)
 	return resp, err
@@ -111,7 +119,7 @@ func (t *Transaction) Export(ctx context.Context, params ...types.QueryType) (*E
 // Partial debit
 // For more details see https://paystack.com/docs/api/transaction/#partial-debit
 func (t *Transaction) PartialDebit(ctx context.Context, txn *TransactionRequest) (*TransactionResponse, error) {
-	url := "transaction/partial_debit"
+	url := PARTIAL_DEBIT_TRANSACTION
 	resp := &TransactionResponse{}
 	err := t.client.PostResource(ctx, url, txn, resp)
 	return resp, err
